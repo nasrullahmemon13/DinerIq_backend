@@ -1,0 +1,82 @@
+body.report-body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+    background-color: #f8fafc;
+    margin: 0;
+    padding: 2rem;
+}
+
+.report-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.report-header h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.75rem;
+}
+
+.subtitle {
+    margin: 0.25rem 0 0 0;
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.meta p {
+    margin: 0.25rem 0;
+    font-size: 0.875rem;
+    color: #475569;
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0 2rem 0;
+}
+
+.kpi-card {
+    background: #f1f5f9;
+    padding: 1rem;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.kpi-card .label {
+    display: block;
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.kpi-card .value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0284c7;
+    margin-top: 0.5rem;
+}
+
+.report-footer {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 1.5rem;
+    margin-top: 3rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #94a3b8;
+}

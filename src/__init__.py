@@ -1,0 +1,3 @@
+"""
+DineIQ Analytics - Source Package
+"""

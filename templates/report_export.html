@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DineIQ Analytics - Executive Intelligence Report</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body class="report-body">
+    <div class="report-container">
+        <header class="report-header">
+            <div class="brand">
+                <h1>DineIQ Analytics</h1>
+                <p class="subtitle">Enterprise Restaurant Intelligence Platform</p>
+            </div>
+            <div class="meta">
+                <p><strong>Generated:</strong> {{ generated_date }}</p>
+                <p><strong>Report Scope:</strong> {{ report_scope }}</p>
+                <p><strong>Team:</strong> Inside Hunters SFC</p>
+            </div>
+        </header>
+
+        <section class="report-summary">
+            <h2>Executive Overview</h2>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <span class="label">Total Revenue</span>
+                    <span class="value">{{ total_revenue }}</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="label">Total Orders</span>
+                    <span class="value">{{ total_orders }}</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="label">Average Order Value</span>
+                    <span class="value">{{ avg_order_value }}</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="label">Kitchen Wastage Cost</span>
+                    <span class="value">{{ wastage_cost }}</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="report-details">
+            <h2>Analytical Findings</h2>
+            <p>{{ findings_summary }}</p>
+        </section>
+
+        <footer class="report-footer">
+            <p>DineIQ Analytics &copy; 2026 Inside Hunters SFC. Confidential & Proprietary.</p>
+        </footer>
+    </div>
+</body>
+</html>

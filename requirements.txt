@@ -10,3 +10,4 @@ python-dotenv
 pyarrow
 python-multipart
 faker
+openpyxl

@@ -1,0 +1,11 @@
+-r requirements.txt
+pyspark
+scikit-learn
+xgboost
+scipy
+statsmodels
+streamlit
+plotly
+matplotlib
+mlflow
+pytest

@@ -11,3 +11,5 @@ The root `app.py` exports the ASGI application. This repository is not yet verif
 Real environment files and local SQLite databases are intentionally excluded.
 
 Runtime datasets, sample records, generated reports and trained model artifacts are excluded from this source repository. Provision required analytics data separately before running data-dependent endpoints.
+
+The default requirements.txt contains API dependencies only to fit the Vercel function size limit. For offline Spark/ML training and local dashboards, install requirements-training.txt on a separate machine with Java. Training packages are not installed in the Vercel API runtime.

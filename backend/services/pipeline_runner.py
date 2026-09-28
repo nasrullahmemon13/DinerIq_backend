@@ -16,6 +16,7 @@ import time
 import uuid
 import shutil
 import re
+import tempfile
 from datetime import datetime, date
 from typing import Dict, List, Any, Optional, Tuple
 import pandas as pd
@@ -24,7 +25,11 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-STAGING_DIR = os.path.join(PROJECT_ROOT, "data_staging")
+STAGING_DIR = (
+    os.path.join(tempfile.gettempdir(), "dineiq", "data_staging")
+    if os.getenv("VERCEL") == "1"
+    else os.path.join(PROJECT_ROOT, "data_staging")
+)
 RUNS_DIR = os.path.join(STAGING_DIR, "runs")
 RAW_DATA_DIR = os.path.join(PROJECT_ROOT, "raw_data")
 MODELS_SPARK_DIR = os.path.join(PROJECT_ROOT, "models", "spark")

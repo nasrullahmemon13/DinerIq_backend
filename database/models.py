@@ -39,6 +39,13 @@ class User(Base):
     assigned_location_id = Column(String(50), nullable=True)
     is_active = Column(Boolean, default=True)
 
+class AuthSession(Base):
+    __tablename__ = "auth_sessions"
+    token_hash = Column(String(64), primary_key=True)
+    user_id = Column(String(50), ForeignKey("users.user_id"), nullable=False)
+    expires_at = Column(Float, nullable=False)
+
+
 class Restaurant(Base):
     __tablename__ = "restaurants"
 

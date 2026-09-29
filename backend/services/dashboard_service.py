@@ -80,6 +80,18 @@ class DashboardService:
 
     @staticmethod
     def _load_df(path: str) -> pd.DataFrame:
+        if os.getenv('VERCEL') == '1' and 'cleaned' not in path.replace('\\', '/').split('/'):
+            from io import StringIO
+            from pathlib import Path
+            from sqlalchemy import select, inspect
+            from database.connection import engine
+            from database.models import SystemConfig
+            key = 'analytics/' + Path(path).relative_to(Path(PROJECT_ROOT) / 'processed_data').as_posix()
+            with engine.connect() as connection:
+                if inspect(connection).has_table('system_configs'):
+                    value = connection.execute(select(SystemConfig.config_value).where(SystemConfig.config_key == key)).scalar()
+                    if value:
+                        return pd.read_json(StringIO(value), orient='table')
         if os.getenv('VERCEL') == '1' and 'cleaned' in path.replace('\\', '/').split('/'):
             from pathlib import Path
             from sqlalchemy import select
@@ -367,6 +379,8 @@ class DashboardService:
         - margins
         - wastage
         """
+        if os.getenv('VERCEL') == '1':
+            self._init_cache()
         if self.menu_class.empty:
             return {"error": "Menu classification data unavailable"}
 

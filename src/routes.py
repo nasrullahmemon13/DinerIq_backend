@@ -15,6 +15,7 @@ Implements SRS Functional Requirements (i) through (xi):
 """
 
 import uuid
+import hashlib
 from datetime import date, datetime
 from typing import List, Optional, Dict, Any
 
@@ -23,6 +24,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from database.connection import get_db, hash_password, verify_password
+from database.models import AuthSession
 from database.models import (
     Customer,
     Inventory,
@@ -59,9 +61,9 @@ def get_current_user(
     import time
     if authorization and authorization.startswith("Bearer "):
         token = authorization[7:].strip()
-        session = ACTIVE_TOKENS.get(token)
-        if session and session.get("expires_at", 0) > time.time():
-            user = db.query(User).filter(User.user_id == session["user_id"]).first()
+        session = db.get(AuthSession, hashlib.sha256(token.encode()).hexdigest())
+        if session and session.expires_at > time.time():
+            user = db.query(User).filter(User.user_id == session.user_id).first()
             if user and user.is_active:
                 return {"user_id": user.user_id, "username": user.username,
                         "email": user.email, "full_name": user.full_name,
@@ -379,7 +381,9 @@ def login_user(req: UserLoginRequest, db: Session = Depends(get_db)):
         "role_id": user.role_id,
         "assigned_location_id": user.assigned_location_id
     }
-    ACTIVE_TOKENS[token] = {**user_payload, "expires_at": time.time() + 8 * 3600}
+    db.add(AuthSession(token_hash=hashlib.sha256(token.encode()).hexdigest(),
+                       user_id=user.user_id, expires_at=time.time() + 8 * 3600))
+    db.commit()
 
     return {
         "access_token": token,
@@ -391,12 +395,17 @@ def login_user(req: UserLoginRequest, db: Session = Depends(get_db)):
 @router.post("/auth/logout", tags=["(i) Auth & (ii) RBAC"])
 def logout_user(
     authorization: Optional[str] = Header(None),
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     """Invalidate current user session token."""
     if authorization and authorization.startswith("Bearer "):
         token = authorization.split("Bearer ", 1)[1].strip()
         ACTIVE_TOKENS.pop(token, None)
+        session = db.get(AuthSession, hashlib.sha256(token.encode()).hexdigest())
+        if session:
+            db.delete(session)
+            db.commit()
     return {"message": "Successfully logged out", "username": current_user.get("username")}
 
 

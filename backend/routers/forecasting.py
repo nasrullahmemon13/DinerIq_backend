@@ -10,6 +10,7 @@ import os
 from typing import Dict, Any, List, Optional
 from fastapi import APIRouter, Query, HTTPException, Depends
 import pandas as pd
+from backend.services.data_store import read_frame, data_exists
 import numpy as np
 from database.connection import get_db
 from database.models import SystemConfig
@@ -31,9 +32,9 @@ def live_forecasting(horizon: int = Query(14, ge=1, le=90), location: Optional[s
 
 def load_parquet_safe(filename: str) -> pd.DataFrame:
     p = os.path.join(FORECAST_DIR, filename)
-    if os.path.exists(p):
+    if data_exists(p):
         try:
-            return pd.read_parquet(p)
+            return read_frame(p)
         except Exception as e:
             print(f"Error loading {p}: {e}")
     return pd.DataFrame()

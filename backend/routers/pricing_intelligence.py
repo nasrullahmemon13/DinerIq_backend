@@ -11,6 +11,7 @@ import os
 from typing import Dict, Any, List, Optional
 from fastapi import APIRouter, Query
 import pandas as pd
+from backend.services.data_store import read_frame, data_exists
 
 router = APIRouter(prefix="/api/v1/analytics/pricing", tags=["Pricing Intelligence"])
 
@@ -18,9 +19,9 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..
 
 def load_parquet(folder: str, filename: str) -> pd.DataFrame:
     p = os.path.join(PROJECT_ROOT, "processed_data", folder, filename)
-    if os.path.exists(p):
+    if data_exists(p):
         try:
-            return pd.read_parquet(p)
+            return read_frame(p)
         except Exception as e:
             print(f"Error loading {p}: {e}")
     return pd.DataFrame()

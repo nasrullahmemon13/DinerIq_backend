@@ -14,7 +14,7 @@ Defines schema for all 11 tables per SRS Section 2 & Step 2 requirements:
 - Wastage
 """
 from sqlalchemy import (
-    Column, Integer, BigInteger, String, Float, Boolean, Date, DateTime, Time, ForeignKey, Index, Text
+    Column, Integer, BigInteger, String, Float, Boolean, Date, DateTime, Time, ForeignKey, Index, Text, LargeBinary
 )
 from sqlalchemy.orm import declarative_base, relationship
 
@@ -38,6 +38,14 @@ class User(Base):
     role_id = Column(String(50), ForeignKey("roles.role_id"), nullable=False, index=True)
     assigned_location_id = Column(String(50), nullable=True)
     is_active = Column(Boolean, default=True)
+
+class DatasetPart(Base):
+    __tablename__ = "dataset_parts"
+    dataset_key = Column(String(180), primary_key=True)
+    version = Column(String(64), primary_key=True)
+    part_number = Column(Integer, primary_key=True)
+    payload = Column(LargeBinary, nullable=False)
+
 
 class AuthSession(Base):
     __tablename__ = "auth_sessions"

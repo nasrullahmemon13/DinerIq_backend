@@ -13,6 +13,7 @@ import os
 from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Query, HTTPException, status
 import pandas as pd
+from backend.services.data_store import read_frame, data_exists
 import numpy as np
 from backend.services import location_scope
 
@@ -58,13 +59,13 @@ class LocationsChannelsAnalyticsService:
 
     @staticmethod
     def _load_df(path: str) -> pd.DataFrame:
-        if os.path.exists(path):
+        if data_exists(path):
             try:
-                return pd.read_parquet(path)
+                return read_frame(path)
             except Exception as e:
                 print(f"[Error] Failed to load {path}: {e}")
         csv_path = os.path.splitext(path)[0] + '.csv'
-        if os.path.exists(csv_path):
+        if data_exists(csv_path):
             return pd.read_csv(csv_path)
         return pd.DataFrame()
 

@@ -80,6 +80,10 @@ class DashboardService:
 
     @staticmethod
     def _load_df(path: str) -> pd.DataFrame:
+        from backend.services.data_store import manifest, dataset_key, read_frame
+        key = dataset_key(path)
+        if key and manifest(key):
+            return read_frame(path)
         if os.getenv('VERCEL') == '1' and 'cleaned' not in path.replace('\\', '/').split('/'):
             from io import StringIO
             from pathlib import Path
@@ -574,6 +578,8 @@ class DashboardService:
         - promotion-sensitive customers
         - customer trends
         """
+        if os.getenv('VERCEL') == '1':
+            self._init_cache()
         if self.customer_segments.empty:
             return {"error": "Customer segmentation data unavailable"}
 
@@ -773,6 +779,8 @@ class DashboardService:
         - wastage trends
         - wastage-risk predictions
         """
+        if os.getenv('VERCEL') == '1':
+            self._init_cache()
         if self.wastage_item.empty:
             return {"error": "Wastage item data unavailable"}
 

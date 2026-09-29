@@ -12,6 +12,7 @@ import os
 from typing import Optional, Dict, Any, List
 from fastapi import APIRouter, HTTPException, status
 import pandas as pd
+from backend.services.data_store import read_frame, data_exists
 import numpy as np
 
 router = APIRouter(prefix="/api/v1/analytics/peak-periods", tags=["Peak Periods Analytics (FR-xxviii-xxx)"])
@@ -37,16 +38,16 @@ def get_peak_periods_analytics() -> Dict[str, Any]:
     - Channel hourly breakdown
     - Seasonal demand indices
     """
-    if not os.path.exists(HOURLY_PATH) or not os.path.exists(DAILY_PATH):
+    if not data_exists(HOURLY_PATH) or not data_exists(DAILY_PATH):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Temporal pattern datasets not found. Ensure pipeline has executed."
         )
 
-    hourly_df = pd.read_parquet(HOURLY_PATH)
-    daily_df = pd.read_parquet(DAILY_PATH)
-    seasonal_df = pd.read_parquet(SEASONAL_PATH) if os.path.exists(SEASONAL_PATH) else pd.DataFrame()
-    channels_df = pd.read_parquet(CHANNELS_PATH) if os.path.exists(CHANNELS_PATH) else pd.DataFrame()
+    hourly_df = read_frame(HOURLY_PATH)
+    daily_df = read_frame(DAILY_PATH)
+    seasonal_df = read_frame(SEASONAL_PATH) if data_exists(SEASONAL_PATH) else pd.DataFrame()
+    channels_df = read_frame(CHANNELS_PATH) if data_exists(CHANNELS_PATH) else pd.DataFrame()
 
     hourly_df_sorted = hourly_df.sort_values("hour")
     hourly_data: List[Dict[str, Any]] = []
@@ -107,9 +108,9 @@ def get_peak_periods_analytics() -> Dict[str, Any]:
     max_cell_orders = 1
     heatmap_error = None
     excluded_timestamp_rows = 0
-    if os.path.exists(ORDERS_PATH):
+    if data_exists(ORDERS_PATH):
         try:
-            orders_df = pd.read_parquet(ORDERS_PATH, columns=["order_id", "order_timestamp"])
+            orders_df = read_frame(ORDERS_PATH, columns=["order_id", "order_timestamp"])
             orders_df["dt"] = pd.to_datetime(orders_df["order_timestamp"], errors="coerce")
             excluded_timestamp_rows = int(orders_df["dt"].isna().sum())
             orders_df = orders_df.dropna(subset=["dt"])

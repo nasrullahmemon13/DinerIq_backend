@@ -11,6 +11,7 @@ import os
 from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Query, HTTPException, status
 import pandas as pd
+from backend.services.data_store import read_frame, data_exists
 
 router = APIRouter(prefix="/api/v1/analytics/basket", tags=["Market Basket Analysis (FR-xxv-xxvii)"])
 
@@ -30,14 +31,14 @@ def get_market_basket_analysis(
     Returns complete Market Basket Analysis payload with Support, Confidence, Lift,
     and bundle recommendations.
     """
-    if not os.path.exists(RULES_PATH):
+    if not data_exists(RULES_PATH):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Market basket association rules dataset not found. Ensure pipeline has executed."
         )
 
-    rules_df = pd.read_parquet(RULES_PATH)
-    recs_df = pd.read_parquet(RECS_PATH) if os.path.exists(RECS_PATH) else pd.DataFrame()
+    rules_df = read_frame(RULES_PATH)
+    recs_df = read_frame(RECS_PATH) if data_exists(RECS_PATH) else pd.DataFrame()
 
     total_rules_count = len(rules_df)
     avg_lift_val = round(float(rules_df["lift"].mean()), 2) if not rules_df.empty else 1.0

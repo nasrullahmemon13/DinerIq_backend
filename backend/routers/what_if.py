@@ -11,6 +11,7 @@ from typing import Dict, Any, List, Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 import pandas as pd
+from backend.services.data_store import read_frame, data_exists
 
 from src.what_if_engine import WhatIfScenarioEngine, SIMULATION_DISCLAIMER
 
@@ -73,8 +74,8 @@ def get_simulatable_items() -> List[Dict[str, Any]]:
 @router.get("/benchmarks")
 def get_benchmarks() -> List[Dict[str, Any]]:
     p = os.path.join(PROJECT_ROOT, "processed_data", "what_if", "what_if_scenario_benchmark.parquet")
-    if os.path.exists(p):
-        df = pd.read_parquet(p)
+    if data_exists(p):
+        df = read_frame(p)
         records = []
         for _, row in df.iterrows():
             records.append({

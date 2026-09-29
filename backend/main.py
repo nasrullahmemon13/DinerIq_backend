@@ -45,6 +45,7 @@ from backend.routers.admin_management import router as admin_management_router
 from src.routes import router as crud_router, get_current_user
 from src.error_handlers import register_error_handlers
 from backend.routers.verified_models import router as verified_models_router
+from backend.routers.original_data import router as original_data_router
 
 app = FastAPI(
     title="DineIQ Analytics Platform API",
@@ -88,6 +89,7 @@ app.include_router(data_governance_router, dependencies=[Depends(get_current_use
 app.include_router(admin_management_router, dependencies=[Depends(get_current_user)])
 app.include_router(crud_router)
 app.include_router(verified_models_router)
+app.include_router(original_data_router)
 
 
 @app.get("/api/health", tags=["Health"])

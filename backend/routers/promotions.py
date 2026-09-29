@@ -14,6 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 import pandas as pd
+from backend.services.data_store import read_frame, data_exists
 
 from database.connection import get_db
 from database.models import Promotion, MenuItem
@@ -67,9 +68,9 @@ def list_promotions_with_analytics(
     db_promotions = db.query(Promotion).all()
 
     eval_dict = {}
-    if os.path.exists(EVAL_PATH):
+    if data_exists(EVAL_PATH):
         try:
-            df = pd.read_parquet(EVAL_PATH)
+            df = read_frame(EVAL_PATH)
             for _, r in df.iterrows():
                 pid = str(r["promotion_id"]).strip()
                 eval_dict[pid] = r.to_dict()

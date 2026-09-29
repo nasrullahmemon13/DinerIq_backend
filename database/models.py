@@ -43,7 +43,7 @@ class Restaurant(Base):
     __tablename__ = "restaurants"
 
     restaurant_id = Column(String(20), primary_key=True)
-    location_id = Column(String(20), index=True, nullable=False)
+    location_id = Column(String(20), index=True, unique=True, nullable=False)
     name = Column(String(100), nullable=False)
     city = Column(String(50), nullable=False)
     state = Column(String(20), nullable=False)

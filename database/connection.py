@@ -16,6 +16,12 @@ load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
 def get_engine():
     """Create SQLAlchemy engine using DATABASE_URL if available, else local SQLite."""
     db_url = os.getenv("DATABASE_URL")
+    if db_url:
+        db_url = db_url.strip()
+        for prefix in ("postgres://", "postgresql://"):
+            if db_url.startswith(prefix):
+                db_url = "postgresql+psycopg2://" + db_url[len(prefix):]
+                break
     if not db_url:
         db_path = os.path.join(CURRENT_DIR, "dineiq.db")
         db_url = f"sqlite:///{db_path}"

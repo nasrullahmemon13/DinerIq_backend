@@ -80,6 +80,15 @@ class DashboardService:
 
     @staticmethod
     def _load_df(path: str) -> pd.DataFrame:
+        if os.getenv('VERCEL') == '1' and 'cleaned' in path.replace('\\', '/').split('/'):
+            from pathlib import Path
+            from sqlalchemy import select
+            from database.connection import engine
+            from database.models import Base
+            name = Path(path).stem
+            if name in {'orders', 'order_items', 'customers', 'menu_items', 'wastage', 'restaurants'}:
+                with engine.connect() as connection:
+                    return pd.read_sql(select(Base.metadata.tables[name]), connection)
         if os.path.exists(path):
             try:
                 return pd.read_parquet(path)
@@ -107,6 +116,8 @@ class DashboardService:
         - Dynamic top menu items
         - Dynamic Spark MLlib vs Python ML performance
         """
+        if os.getenv('VERCEL') == '1':
+            self._init_cache()
         filtered_orders = self.orders.copy() if not self.orders.empty else pd.DataFrame()
         filtered_wastage = self.wastage_clean.copy() if not self.wastage_clean.empty else pd.DataFrame()
 
@@ -154,9 +165,9 @@ class DashboardService:
             avg_order_value = round(float(filtered_orders["total_amount"].mean()), 2)
             line_path = os.path.join(PROJECT_ROOT, 'processed_data', 'cleaned', 'order_items', 'order_items.parquet')
             menu_path = os.path.join(PROJECT_ROOT, 'processed_data', 'cleaned', 'menu_items', 'menu_items.parquet')
-            lines = pd.read_parquet(line_path, columns=['order_id','item_id','quantity','item_total'])
+            lines = self._load_df(line_path)[['order_id','item_id','quantity','item_total']]
             lines = lines[lines.order_id.isin(filtered_orders.order_id)]
-            costs = pd.read_parquet(menu_path, columns=['item_id','cost_price','name'])
+            costs = self._load_df(menu_path)[['item_id','cost_price','name']]
             lines = lines.merge(costs, on='item_id', how='left', validate='many_to_one')
             gross_profit = round(total_revenue - float((lines.quantity * lines.cost_price).sum()), 2) if lines.cost_price.notna().all() else None
             margin_pct = 100*gross_profit/total_revenue if gross_profit is not None and total_revenue else None

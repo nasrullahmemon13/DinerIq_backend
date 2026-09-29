@@ -4,6 +4,7 @@ Provides SQLAlchemy engine, session maker, and get_db dependency for FastAPI rou
 """
 import os
 import hashlib
+from functools import lru_cache
 from typing import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
@@ -32,8 +33,16 @@ def get_engine():
 engine = get_engine()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+@lru_cache(maxsize=1)
+def ensure_schema():
+    from database.initialize_schema import initialize_schema
+    initialize_schema(engine)
+
+
 def get_db() -> Generator[Session, None, None]:
     """FastAPI dependency for yielding database session with automatic commit/rollback."""
+    if os.getenv("VERCEL") == "1":
+        ensure_schema()
     db = SessionLocal()
     try:
         yield db
